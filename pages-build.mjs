@@ -1,12 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 import {renderPagesHome,installHeadRewriter} from './pages-home.mjs';
 import {patchWorker,exportStatic} from './pages-static.mjs';
 
 // Each Pages project watches its own directory and this shared build entry.
 const domain=process.argv[2];
-const root=path.dirname(new URL(import.meta.url).pathname);
+const root=path.dirname(fileURLToPath(import.meta.url));
 const directory=path.join(root,domain||'');
 if(!domain||!fs.existsSync(path.join(directory,'package.json')))throw new Error('Unknown site directory');
 process.chdir(directory);
@@ -15,7 +16,7 @@ const write=(file,value)=>{fs.mkdirSync(path.dirname(file),{recursive:true});fs.
 const out='pages-dist';
 const copyPublic=()=>{if(fs.existsSync('public'))fs.cpSync('public',out,{recursive:true})};
 const routes=exclude=>write(out+'/_routes.json',JSON.stringify({version:1,include:['/*'],exclude}));
-const moduleFrom=async source=>{const m=await import('data:text/javascript;base64,'+Buffer.from(patchWorker(source,domain)).toString('base64'));m.configureStatic(JSON.parse(fs.readFileSync(path.join(root,'common/catalogue.json'))),JSON.parse(fs.readFileSync(path.join(root,'common/rates.json'))));return m};
+const moduleFrom=async source=>{const m=await import('data:text/javascript;base64,'+Buffer.from(patchWorker(source,domain)).toString('base64'));if(typeof m.configureStatic==='function')m.configureStatic(JSON.parse(fs.readFileSync(path.join(root,'common/catalogue.json'))),JSON.parse(fs.readFileSync(path.join(root,'common/rates.json'))));return m};
 const assetsFrom=async(worker,paths)=>{for(const p of paths){const r=await worker.fetch(new Request('https://'+domain+p),{},{});if(!r.ok)throw new Error('Static asset failed: '+p);write(out+p,Buffer.from(await r.arrayBuffer()))}};
 const homeFrom=async worker=>{const r=await worker.fetch(new Request('https://'+domain+'/'),process.env,{});if(r.ok&&r.headers.get('content-type')?.includes('text/html'))write(out+'/index.html',await r.text());else throw new Error('Homepage build failed: '+r.status)};
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out,{recursive:true});
@@ -47,6 +48,26 @@ if(domain==='cssbuyfindshub.com'){
  await assetsFrom(worker,['/favicon.ico']);await homeFrom(worker);
  routes(['/asset/*','/guide-image/*','/favicon.ico']);
  write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/png\n  Cache-Control: public, max-age=86400\n');
+}else if(domain==='ootdbuysheetdesk.com'){
+ run('node',['tools/build.mjs']);
+ let source=fs.readFileSync('dist/server/index.js','utf8');
+ const data=JSON.parse(fs.readFileSync('tools/assets.json'));
+ for(const asset of Object.values(data))write(out+'/asset/'+asset.key,Buffer.from(asset.data,'base64'));
+ const guides=JSON.parse(fs.readFileSync('tools/guide-images.json'));
+ guides.forEach((value,index)=>write(out+'/guide-image/'+index,Buffer.from(value,'base64')));
+ source=source.replace('ASSETS='+JSON.stringify(data),'ASSETS='+JSON.stringify(Object.fromEntries(Object.entries(data).map(([url,asset])=>[url,{key:asset.key}]))));
+ source=source.replace('GUIDE_IMAGES='+JSON.stringify(guides),'GUIDE_IMAGES='+JSON.stringify(guides.map(()=>true)));
+ const assetStart=source.indexOf("if(u.pathname.startsWith('/asset/'))");
+ const assetEnd=source.indexOf("if(u.pathname==='/image')",assetStart);
+ const guideStart=source.indexOf("if(u.pathname.startsWith('/guide-image/'))");
+ const guideEnd=source.indexOf("if(u.pathname==='/api/rates')",guideStart);
+ if(assetStart<0||assetEnd<0||guideStart<0||guideEnd<0)throw new Error('OOTDBuy asset handler changed');
+ source=source.slice(0,assetStart)+"if(u.pathname.startsWith('/asset/'))return env.ASSETS.fetch(request);\n"+source.slice(assetEnd,guideStart)+"if(u.pathname.startsWith('/guide-image/'))return env.ASSETS.fetch(request);\n"+source.slice(guideEnd);
+ write(out+'/_worker.js',source);
+ const worker=(await moduleFrom(source)).default;
+ await assetsFrom(worker,['/favicon.ico']);await homeFrom(worker);
+ routes(['/asset/*','/guide-image/*','/favicon.ico']);
+ write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n');
 }else if(domain==='oopbuyqcguide.com'){
  if(!process.env.PAGES_REUSE_DEPENDENCIES)run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
  fs.cpSync('dist',out,{recursive:true});

@@ -3,14 +3,15 @@ import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
+import {fileURLToPath} from 'node:url';
 import {configureStatic,superProduct} from './static-data.mjs';
 import {installHeadRewriter} from './pages-home.mjs';
-const root=path.dirname(new URL(import.meta.url).pathname);
+const root=path.dirname(fileURLToPath(import.meta.url));
 const data=JSON.parse(fs.readFileSync(path.join(root,'common/catalogue.json'))),fx=JSON.parse(fs.readFileSync(path.join(root,'common/rates.json')));
 configureStatic(data,fx);
 const defaultLanguages=['en','de','fr','es','it','nl','pt','pl','ro','sv','zh','da','fi','el','cs','hu','bg','sk','hr','ja','ko','vi','th','id'];
 const slugs=['shoes','t-shirts','clothing','hoodies','pants','belts','bags','perfume','electronics','other'];
-const ga={'vigorbuysheetdesk.com':'G-Q1QMYKSCX9','orientdigsheetdesk.com':'G-PYD6BSR5Y8','cssbuyfindshub.com':'G-Z9V5QHJJHP','kakobuysheetdesk.com':'G-TQ0S977B2V','lovegobuysheetlab.com':'G-EY5KH97XMY','oopbuyqcguide.com':'G-PSFZGP4H0M','sugargoosheetdesk.com':'G-CF8XXTL53F'};
+const ga={'vigorbuysheetdesk.com':'G-Q1QMYKSCX9','orientdigsheetdesk.com':'G-PYD6BSR5Y8','cssbuyfindshub.com':'G-Z9V5QHJJHP','kakobuysheetdesk.com':'G-TQ0S977B2V','lovegobuysheetlab.com':'G-EY5KH97XMY','oopbuyqcguide.com':'G-PSFZGP4H0M','sugargoosheetdesk.com':'G-CF8XXTL53F','ootdbuysheetdesk.com':'G-SN1WS560YB'};
 const replaceLiteral=(s,name,value)=>{const re=new RegExp('\\b'+name+'=');const m=re.exec(s);if(!m)throw Error('Missing literal '+name);let i=m.index+m[0].length,j=i;const first=s[i];if(first==='{'||first==='['){let depth=0,quote=false,escape=false;for(;j<s.length;j++){const c=s[j];if(quote){if(escape)escape=false;else if(c==='\\')escape=true;else if(c==='"')quote=false}else if(c==='"')quote=true;else if(c==='['||c==='{')depth++;else if(c===']'||c==='}'){if(!--depth){j++;break}}}}else throw Error('Not a JSON literal '+name);return s.slice(0,i)+JSON.stringify(value)+s.slice(j)};
 export function patchWorker(source,domain){
  if(/^(kakobuy|sugargoo)/.test(domain)){
@@ -19,14 +20,14 @@ export function patchWorker(source,domain){
   if(domain.startsWith('sugargoo'))source=replaceLiteral(source,'RATES',{rates:fx.rates,updated:fx.time_last_update_utc});
  }
  if(domain.startsWith('superbuy')){source=replaceLiteral(source,'CATALOGUE',data.items.map(p=>superProduct(p.id)));source=replaceLiteral(source,'SEEDS',Object.fromEntries(data.items.map(p=>[p.id,superProduct(p.id)])));}
- if(!/^(lovegobuy|oopbuy)/.test(domain))source=fs.readFileSync(path.join(root,'static-data.mjs'),'utf8')+'\n'+source;
+ if(!/^(lovegobuy|oopbuy|ootdbuy)/.test(domain))source=fs.readFileSync(path.join(root,'static-data.mjs'),'utf8')+'\n'+source;
  return source;
 }
 export async function exportStatic(domain,out,source){
  const revision=createHash('sha256').update(fs.readFileSync(path.join(root,'pages-client.js'))).update(fs.readFileSync(path.join(root,'static-data.mjs'))).update(fs.readFileSync(path.join(root,'common/catalogue.json'))).update(source||'').digest('hex').slice(0,12);
  const write=(f,v)=>{fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,v)};
  let languages=defaultLanguages;
- if(/^(kakobuy|sugargoo)/.test(domain))languages=Object.keys(JSON.parse(fs.readFileSync('tools/content.json')));
+ if(/^(kakobuy|sugargoo|ootdbuy)/.test(domain))languages=Object.keys(JSON.parse(fs.readFileSync('tools/content.json')));
  else if(domain.startsWith('superbuy'))languages=(await import(path.join(root,domain,'src/content.js'))).LANGS.map(x=>x[0]);
  else if(domain.startsWith('cssbuy'))languages=JSON.parse(fs.readFileSync('app/hub.tsx','utf8').match(/const languages=(\[.*?\]);/)[1].replaceAll("'",'"')).map(x=>x[0]);
  else if(/^(lovegobuy|oopbuy)/.test(domain))languages=[...fs.readFileSync('lib/i18n.ts','utf8').match(/export const languages[^=]*=\{([^}]+)\}/)[1].matchAll(/(?:^|,)\s*(\w+):/g)].map(x=>x[1]);
@@ -39,7 +40,7 @@ export async function exportStatic(domain,out,source){
   const deadline=Date.now()+60000;for(;;){try{await get('/');break}catch(e){if(child.exitCode!==null||Date.now()>deadline)throw Error('Preview failed: '+logs);await new Promise(r=>setTimeout(r,300))}}
  }else{
   installHeadRewriter();source=patchWorker(source,domain);
-  const module=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));module.configureStatic(data,fx);
+  const module=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));if(typeof module.configureStatic==='function')module.configureStatic(data,fx);
   get=p=>module.default.fetch(new Request('https://'+domain+p),process.env,{});
   if(legacy){
    const headShim=`globalThis.HTMLRewriter=class{handlers=[];on(s,h){this.handlers.push(h);return this}transform(r){const hs=this.handlers;return new Response(new ReadableStream({async start(c){let a='';for(const h of hs)h.element({append(v){a+=v}});c.enqueue(new TextEncoder().encode((await r.text()).replace('</head>',a+'</head>')));c.close()}}),{status:r.status,headers:r.headers})}};\n`;
@@ -47,11 +48,13 @@ export async function exportStatic(domain,out,source){
    pages.push(domain.startsWith('oopbuy')?'/products':'/finds','/guide',...slugs.map((s,i)=>'/category/'+(domain.startsWith('oopbuy')?i+2:s)));
    if(/^(lovegobuy|oopbuy)/.test(domain))pages.push('/categories');
    if(domain.startsWith('lovegobuy'))pages.push('/qc-checklist','/faq');
-  }else if(desk)pages.push('/catalog/','/categories/','/faq/','/saved/','/privacy/',...slugs.map((s,i)=>'/category/'+i+'/'),...(domain.startsWith('orientdig')?['/image-search/']:[]));
+  }else if(domain.startsWith('ootdbuy'))pages.push('/categories','/image-search','/finds',...slugs.map(s=>'/category/'+s));
+  else if(desk)pages.push('/catalog/','/categories/','/faq/','/saved/','/privacy/',...slugs.map((s,i)=>'/category/'+i+'/'),...(domain.startsWith('orientdig')?['/image-search/']:[]));
   else if(superbuy)pages.push('/spreadsheet','/guide','/saved',...slugs.map(s=>'/category/'+(s==='perfume'?'fragrance':s)));
  }
  const productBase=css?'/products/':'/product/';
- pages.push(...[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])].map(id=>productBase+id+(desk?'/':'')));
+ const productIds=domain.startsWith('ootdbuy')?[...new Set([...Object.values(JSON.parse(fs.readFileSync('tools/catalog-full.json'))).flatMap(v=>v.items).map(p=>p.aid),'7896594713'])]:[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])];
+ pages.push(...productIds.map(id=>productBase+id+(desk?'/':'')));
  const htmlFile=p=>p==='/'?'index.html':p.endsWith('/')?p.slice(1)+'index.html':p.slice(1)+'.html';
  function inject(html){
   html=html.replaceAll('"/favicon.ico"','"/favicon.ico?v='+revision+'"');

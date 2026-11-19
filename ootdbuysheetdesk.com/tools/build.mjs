@@ -37,6 +37,8 @@ await rm(dist, { recursive: true, force: true });
 await mkdir(resolve(dist, "server"), { recursive: true });
 await mkdir(resolve(dist, ".openai"), { recursive: true });
 await cp(resolve(root, "worker", "index.js"), resolve(dist, "server", "index.js"));
-await cp(resolve(root, ".openai", "hosting.json"), resolve(dist, ".openai", "hosting.json"));
+await cp(resolve(root, ".openai", "hosting.json"), resolve(dist, ".openai", "hosting.json")).catch((error) => {
+  if (error.code !== "ENOENT") throw error;
+});
 
 console.log(`Built ${dist}`);
