@@ -14,8 +14,13 @@ export async function renderPagesHome(domain,out){
    try{response=await fetch('http://127.0.0.1:'+port+'/',{headers:{Host:domain},signal:AbortSignal.timeout(15000)});break}catch{await new Promise(resolve=>setTimeout(resolve,300))}
   }
   if(!response?.ok)throw new Error('Pages homepage rendering failed: '+response?.status+' '+log);
-  const html=await response.text();
+  let html=await response.text();
   if(!html.includes('<html')||html.length<1000)throw new Error('Incomplete homepage');
+  // Local rendering uses a loopback URL. Preserve the production analytics
+  // injection that the entrypoint enables only for the live hostname.
+  const config=JSON.parse(fs.readFileSync('deployment-config.json','utf8'));
+  const id=config.analyticsMeasurementId;
+  if(/^G-[A-Z0-9]+$/.test(id)&&!html.includes(id))html=html.replace('</head>',`<script async src="https://www.googletagmanager.com/gtag/js?id=${id}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}');</script></head>`);
   fs.writeFileSync(out+'/index.html',html);
   console.log('Rendered static homepage using Pages runtime: '+domain);
  }finally{child.kill('SIGTERM');}
