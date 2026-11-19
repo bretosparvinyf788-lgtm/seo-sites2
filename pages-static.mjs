@@ -40,6 +40,7 @@ export async function exportStatic(domain,out,source){
   const deadline=Date.now()+60000;for(;;){try{await get('/');break}catch(e){if(child.exitCode!==null||Date.now()>deadline)throw Error('Preview failed: '+logs);await new Promise(r=>setTimeout(r,300))}}
  }else{
   installHeadRewriter();source=patchWorker(source,domain);
+  if(domain.startsWith('ootdbuy'))source=source.replace('if(sourceAid){','if(sourceAid&&globalThis.__OOTDBUY_LIVE){').replace("if(p.id&&(!known||aid==='7896594713')){","if(p.id&&globalThis.__OOTDBUY_LIVE&&(!known||aid==='7896594713')){");
   const module=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));if(typeof module.configureStatic==='function')module.configureStatic(data,fx);
   get=p=>module.default.fetch(new Request('https://'+domain+p),process.env,{});
   if(legacy){
@@ -53,7 +54,7 @@ export async function exportStatic(domain,out,source){
   else if(superbuy)pages.push('/spreadsheet','/guide','/saved',...slugs.map(s=>'/category/'+(s==='perfume'?'fragrance':s)));
  }
  const productBase=css?'/products/':'/product/';
- const productIds=domain.startsWith('ootdbuy')?[]:[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])];
+ const productIds=domain.startsWith('ootdbuy')?[...new Set([...Object.values(JSON.parse(fs.readFileSync('tools/catalog-full.json'))).flatMap(v=>v.items).map(p=>p.aid),'7896594713'])]:[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])];
  pages.push(...productIds.map(id=>productBase+id+(desk?'/':'')));
  const htmlFile=p=>p==='/'?'index.html':p.endsWith('/')?p.slice(1)+'index.html':p.slice(1)+'.html';
  function inject(html){
