@@ -14,3 +14,5 @@ fs.copyFileSync('worker/pages-entry.mjs',path.join(out,'_worker.js/index.js'));
 fs.writeFileSync(path.join(out,'_routes.json'),JSON.stringify({version:1,include:['/*'],exclude:['/_next/*','/qc-patches/*','/favicon*','/cssbuy-icon-v1.png','/'+config.indexNowKey+'.txt']}));
 fs.writeFileSync(path.join(out,'_headers'),'/_next/*\n  Cache-Control: public, max-age=31536000, immutable\n/qc-patches/*\n  Cache-Control: public, max-age=31536000, immutable\n');
 console.log('Built complete Cloudflare Pages site in pages-dist/');
+// Remove Vite's Workers-only deployment redirect before Pages reads its config.
+fs.rmSync(path.join(root,'.wrangler/deploy'),{recursive:true,force:true});
