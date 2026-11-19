@@ -4,7 +4,7 @@ import fs from 'node:fs';
 // Render with the actual Pages runtime, including HTMLRewriter and Node bindings.
 export async function renderPagesHome(domain,out){
  const port=8798;
- const child=spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','pages','dev',out,'--ip=127.0.0.1','--port='+port,'--compatibility-date=2026-11-19','--compatibility-flags=nodejs_compat'],{stdio:['ignore','pipe','pipe'],env:{...process.env,WRANGLER_SEND_METRICS:'false'}});
+ const child=spawn(process.execPath,['node_modules/wrangler/bin/wrangler.js','pages','dev',out,'--ip=127.0.0.1','--port='+port,'--compatibility-date=2026-05-15','--compatibility-flags=nodejs_compat','--inspector-port=0'],{stdio:['ignore','pipe','pipe'],env:{...process.env,WRANGLER_SEND_METRICS:'false'}});
  let log='';child.stdout.on('data',b=>log=(log+b).slice(-6000));child.stderr.on('data',b=>log=(log+b).slice(-6000));
  try{
   let response;
