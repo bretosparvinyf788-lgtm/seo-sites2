@@ -1,5 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://kakobuylab.com/sitemap.xml
-Sitemap: https://kakobuylab.com/sitemap-source.xml

@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://usfansvip.store/sitemap.xml

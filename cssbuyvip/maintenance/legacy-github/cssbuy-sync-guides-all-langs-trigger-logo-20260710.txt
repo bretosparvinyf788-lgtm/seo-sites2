@@ -1,1 +1,0 @@
-Apply CSS Buy logo to the external site header and browser favicon.

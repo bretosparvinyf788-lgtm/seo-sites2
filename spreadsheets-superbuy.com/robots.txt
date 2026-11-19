@@ -1,3 +1,0 @@
-User-agent: *
-Allow: /
-Sitemap: https://spreadsheets-superbuy.com/sitemap.xml

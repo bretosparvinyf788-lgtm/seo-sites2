@@ -1,2 +1,0 @@
-Cloudflare Pages production deployment marker — 2026-09-20
-SEO crawlability, content, analytics and IndexNow release.

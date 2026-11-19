@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://spreadsheets-hipobuy.net/sitemap.xml
