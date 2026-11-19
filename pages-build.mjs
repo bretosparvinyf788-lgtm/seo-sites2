@@ -27,7 +27,7 @@ if(domain==='cssbuyfindshub.com'){
  run('python3',['scripts/build-cloudflare.py']);
  fs.cpSync('cloudflare-dist',out,{recursive:true});
  const source=fs.readFileSync(out+'/_worker.js','utf8');
- await homeFrom((await moduleFrom(source)).default);
+ const worker=(await moduleFrom(source)).default;await assetsFrom(worker,['/favicon.ico']);await homeFrom(worker);
 }else if(domain==='sugargoosheetdesk.com'){
  run('python3',['tools/build.py']);
  let source=fs.readFileSync('dist/server/index.js','utf8');
