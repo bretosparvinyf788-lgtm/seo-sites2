@@ -1,11 +1,11 @@
-import concurrent.futures,datetime,hashlib,html,json,pathlib,re,subprocess,time
+import ast,collections,concurrent.futures,datetime,hashlib,html,json,pathlib,re,subprocess,time
 ROOT=pathlib.Path(__file__).resolve().parent.parent
 OUT=ROOT/'common';OUT.mkdir(exist_ok=True)
 CACHE=ROOT/'.catalog-cache';CACHE.mkdir(exist_ok=True)
 def clean(s):return html.unescape(re.sub('<[^>]*>','',s)).strip()
 def fetch(url):
  f=CACHE/(hashlib.sha256(url.encode()).hexdigest()+'.html')
- if f.exists() and f.stat().st_size>100:return f.read_text()
+ if f.exists() and f.stat().st_size>100 and time.time()-f.stat().st_mtime<1800:return f.read_text()
  for attempt in range(3):
   r=subprocess.run(['curl','-f','-sS','-L','--max-time','25','-A','Mozilla/5.0','-H','Accept: text/html,application/xhtml+xml','-H','Referer: https://kakobuymake.com/',url],capture_output=True,text=True)
   if r.returncode==0 and len(r.stdout)>100:f.write_text(r.stdout);return r.stdout
@@ -52,7 +52,13 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=5) as ex:
  for count,p in enumerate(ex.map(enrich,missing),1):
   if count%10==0:print('New source details',count,'/',len(missing),flush=True)
 # Reuse genuine seller-gallery records already attached to the same Weidian ID.
-seller={};english={};aliases={}
+previous=json.loads((OUT/'catalogue.json').read_text()) if (OUT/'catalogue.json').exists() else {}
+seller=previous.get('seller',{});english={};aliases={}
+for f in (ROOT/'.seller-cache').glob('*.json'):
+ cached=json.loads(f.read_text())
+ if cached.get('images'):seller[f.stem]=cached
+name_source=(ROOT/'superbuyfindsdesk.com/scripts/build.mjs').read_text()
+english.update(ast.literal_eval(re.search(r'const names=(\{.*?\});',name_source)[1]))
 for brand in ['kakobuysheetdesk.com','sugargoosheetdesk.com']:
  d=json.loads((ROOT/brand/'tools/featured.json').read_text())
  for p in [d['sample'],*d['featured']]:
@@ -71,5 +77,8 @@ for p in allrows.values():
  if p.get('weidian') in seller:p['gallery']=seller[p['weidian']]['images']
  p['updatedAt']=datetime.datetime.now(datetime.timezone.utc).isoformat()
 data={'updatedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'source':'https://kakobuymake.com','items':sorted(allrows.values(),key=lambda p:int(p['id']),reverse=True),'aliases':aliases,'seller':seller}
+samples=[p for p in data['items'] if p.get('weidian') and p.get('agentLinks')]
+patterns=collections.Counter(u.replace(p['weidian'],'{itemId}') for p in samples for u in p['agentLinks'])
+data['agentTemplates']=[u for u,n in patterns.items() if n>=max(1,len(samples)*.9)] or previous.get('agentTemplates',[])
 (OUT/'catalogue.json').write_text(json.dumps(data,ensure_ascii=False,separators=(',',':')))
 print('Saved verified catalogue',len(data['items']),'new details',len(missing),'cached seller galleries',len(seller),flush=True)
