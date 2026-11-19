@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {renderPagesHome,installHeadRewriter} from './pages-home.mjs';
+import {patchWorker,exportStatic} from './pages-static.mjs';
 
 // Each Pages project watches its own directory and this shared build entry.
 const domain=process.argv[2];
@@ -14,12 +15,12 @@ const write=(file,value)=>{fs.mkdirSync(path.dirname(file),{recursive:true});fs.
 const out='pages-dist';
 const copyPublic=()=>{if(fs.existsSync('public'))fs.cpSync('public',out,{recursive:true})};
 const routes=exclude=>write(out+'/_routes.json',JSON.stringify({version:1,include:['/*'],exclude}));
-const moduleFrom=async source=>import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+const moduleFrom=async source=>{const m=await import('data:text/javascript;base64,'+Buffer.from(patchWorker(source,domain)).toString('base64'));m.configureStatic(JSON.parse(fs.readFileSync(path.join(root,'common/catalogue.json'))),JSON.parse(fs.readFileSync(path.join(root,'common/rates.json'))));return m};
 const assetsFrom=async(worker,paths)=>{for(const p of paths){const r=await worker.fetch(new Request('https://'+domain+p),{},{});if(!r.ok)throw new Error('Static asset failed: '+p);write(out+p,Buffer.from(await r.arrayBuffer()))}};
 const homeFrom=async worker=>{const r=await worker.fetch(new Request('https://'+domain+'/'),process.env,{});if(r.ok&&r.headers.get('content-type')?.includes('text/html'))write(out+'/index.html',await r.text());else throw new Error('Homepage build failed: '+r.status)};
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out,{recursive:true});
 if(domain==='cssbuyfindshub.com'){
- run('npx',['--yes','pnpm@11.25.0','install','--frozen-lockfile']);
+ if(!process.env.PAGES_REUSE_DEPENDENCIES)run('npx',['--yes','pnpm@11.25.0','install','--frozen-lockfile']);
  run('node',['scripts/build-cloudflare-pages.mjs']);
  await renderPagesHome(domain,out);
 }else if(domain==='kakobuysheetdesk.com'){
@@ -47,12 +48,12 @@ if(domain==='cssbuyfindshub.com'){
  routes(['/asset/*','/guide-image/*','/favicon.ico']);
  write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/png\n  Cache-Control: public, max-age=86400\n');
 }else if(domain==='oopbuyqcguide.com'){
- run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
+ if(!process.env.PAGES_REUSE_DEPENDENCIES)run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
  fs.cpSync('dist',out,{recursive:true});
  installHeadRewriter();await homeFrom((await moduleFrom(fs.readFileSync(out+'/_worker.js','utf8'))).default);
  routes(['/site.css','/site.js','/favicon*','/apple-touch-icon.png','/oopbuy-logo.png','/guide/*','/qc-repairs/*']);
 }else if(domain==='lovegobuysheetlab.com'){
- run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
+ if(!process.env.PAGES_REUSE_DEPENDENCIES)run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
  copyPublic();
  const source=fs.readFileSync('dist-worker/worker.js','utf8');write(out+'/_worker.js',source);
  installHeadRewriter();await homeFrom((await moduleFrom(source)).default);
@@ -74,5 +75,6 @@ if(domain==='cssbuyfindshub.com'){
  routes(['/app.js','/content.js','/help-locales.js','/style.css','/favicon.svg','/api/catalogue','/api/seed']);
 }else throw new Error('No Pages build configured for '+domain);
 if(!fs.existsSync(out+'/_worker.js'))throw new Error('Pages Functions entry is missing');
+await exportStatic(domain,out,domain==='cssbuyfindshub.com'?null:fs.readFileSync(out+'/_worker.js','utf8'));
 const count=dir=>fs.readdirSync(dir,{withFileTypes:true}).reduce((n,e)=>n+(e.isDirectory()?count(path.join(dir,e.name)):1),0);
 console.log(JSON.stringify({site:domain,output:out,files:count(out),source:'seo-sites2/main',hosting:'Cloudflare Pages'}));

@@ -1,3 +1,4 @@
+import {rates as referenceRates} from '../../static-data.mjs';
 import {catalog,detail,sellerGallery,homeProducts,buyLink,REGISTER,readSource,SOURCE,type Product} from './catalog';
 import {copy,languages} from './i18n';
 import guideCopy from './guide-copy.json';
@@ -17,7 +18,7 @@ async function cached(key:string,fn:()=>Promise<any>,ttl=300000){const old=cache
 const tutorialImages=['f97f81f23f937890e500d3dc432f9124','c42e04b227c3de093574d96d478c85b7','ea1a8413d9ba3f1675038682126b20df','0b455ea9875ede48190db6b1ad891f1e','0456a860e8f555637269e575b138d02b','02c1c6e1e9bfd211ce29c602d5bf0ed8','4bb9dc58ba142a0942c836a68f8e69a0','362375e962b277f4f9540796cce6a452'];
 const allLanguages:Record<string,string>={...Object.fromEntries(Object.entries(languages).filter(([k])=>!k.includes('-'))),...Object.fromEntries(Object.entries(extendedLocales).map(([code,v])=>[code,v.name]))};
 async function locale(lang:string){return extendedLocales[lang]||copy[lang]||copy.en}
-async function prices(currency:string){if(currency==='USD')return 1;try{const r=await cached('rates',async()=>{const r=await fetch('https://open.er-api.com/v6/latest/USD',{signal:AbortSignal.timeout(3500)});if(!r.ok)throw Error();return await r.json() as any},3600000);return Number(r.rates[currency])||1}catch{return 1}}
+async function prices(currency:string){return Number(referenceRates()[currency])||1}
 function response(body:string,status=200,type='text/html; charset=utf-8'){return new Response(body,{status,headers:{'Content-Type':type,'X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Cache-Control':'public, max-age=60'}})}
 export async function handle(request:Request){const u=new URL(request.url),path=u.pathname;let lang=u.searchParams.get('lang')||'en';if(!allLanguages[lang])lang='en';let t;try{t=await locale(lang)}catch{lang='en';t=copy.en}const currencies=['USD','EUR','GBP','CAD','AUD','CNY','CHF','PLN','SEK','NOK','DKK','JPY','KRW','SGD','NZD','BRL','MXN','TRY','THB','AED','SAR','HKD','CZK','HUF'];const currency=currencies.includes(u.searchParams.get('currency')||'')?u.searchParams.get('currency')!:'USD';const rate=await prices(currency);const price=(s:string)=>{const n=Number(s.replace(/[^\d.]/g,''));return n?new Intl.NumberFormat(lang,{style:'currency',currency:rate===1&&currency!=='USD'?'USD':currency,maximumFractionDigits:2}).format(n*rate):'—'};
 const link=(p:string,extra:Record<string,string>={})=>{const [a,b]=p.split('?');const q=new URLSearchParams(b);if(lang!=='en')q.set('lang',lang);if(currency!=='USD')q.set('currency',currency);for(const[k,v]of Object.entries(extra))q.set(k,v);return a+(q.size?'?'+q:'')};

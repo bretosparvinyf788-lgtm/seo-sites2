@@ -1,3 +1,4 @@
+export {configureStatic} from '../static-data.mjs';
 import { handle } from './lib/site.ts';
 const staticPaths = new Set(['/site.css','/layout.css','/site.js','/lovegobuy-icon.png']);
 export default {

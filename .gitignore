@@ -1,0 +1,6 @@
+.catalog-cache/
+.seller-cache/
+*/pages-dist/
+*/cloudflare-dist/
+*/node_modules/
+*/dist-worker/

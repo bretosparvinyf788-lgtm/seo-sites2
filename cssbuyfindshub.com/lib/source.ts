@@ -1,11 +1,13 @@
-import catalog from '../app/catalog.json';
-import details from '../app/details.json';
-import sellerImages from '../app/seller-images.json';
+import snapshot from '../../common/catalogue.json';
+import originalDetails from '../app/details.json';
+import originalSellerImages from '../app/seller-images.json';
 export const cats=[{id:2,slug:'shoes',name:'Shoes / slippers'},{id:3,slug:'t-shirts',name:'T-shirts'},{id:4,slug:'fashion-clothing',name:'Fashion clothing'},{id:5,slug:'hoodies',name:'Hoodies'},{id:6,slug:'pants',name:'Pants / trousers'},{id:7,slug:'belts',name:'Leather belts'},{id:8,slug:'bags',name:'Fashion bags'},{id:9,slug:'perfume',name:'Perfume'},{id:10,slug:'electronics',name:'Electronics'},{id:11,slug:'other',name:'Other stuff'}];
 export type Product={id:string;title:string;image:string;price:string;tid:number;english?:string};
-export const products:Product[]=catalog.flatMap(c=>c.rows.map(p=>({...p,image:sellerImages.find(s=>s.id===p.id)?.images[0]||p.image,tid:c.tid,english:details.find(d=>d.id===p.id)?.english})));
-export const featured=details.map(d=>({...products.find(p=>p.id===d.id)!,title:d.title,english:d.english}));
-export {details,sellerImages};
+export const products:Product[]=snapshot.items.map(p=>({id:p.id,title:p.title,image:p.gallery[0]||p.image,price:p.price==null?'':'$'+p.price.toFixed(2),tid:p.cat,english:p.english}));
+export const details=snapshot.items.map(p=>({...products.find(x=>x.id===p.id)!,images:[p.image,...p.qc],agent:p.weidian?'https://www.cssbuy.com/item-micro-'+p.weidian+'.html':''}));
+export const sellerImages=snapshot.items.filter(p=>p.gallery.length).map(p=>({id:p.id,wid:p.weidian,images:p.gallery}));
+export const featured=originalDetails.map(d=>({...products.find(p=>p.id===d.id)!,title:d.title,english:d.english}));
+
 export const decode=(s:string)=>s.replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/<[^>]*>/g,'').trim();
 export const absolute=(s:string)=>new URL(decode(s),'https://kakobuymake.com').href;
 export async function source(url:string){const r=await fetch(url,{signal:AbortSignal.timeout(12000),headers:{'User-Agent':'CSSBuyFindsHub/1.0','Accept':'text/html'}});if(!r.ok)throw Error('Catalog source unavailable');const reader=r.body!.getReader();let text='',n=0;const decoder=new TextDecoder();while(true){const {done,value}=await reader.read();if(done)break;n+=value.length;if(n>3000000){await reader.cancel();throw Error('Source too large');}text+=decoder.decode(value,{stream:true});}return text;}

@@ -35,7 +35,7 @@ function styleMedia(u){const url=new URL(u);url.searchParams.set('w','600');url.
 function media(u){return u?'/media?url='+encodeURIComponent(u):''}
 function card(p){return `<article class="product"><a href="/product/${p.id}/"><div class="product-photo">${p.cover?`<img src="${esc(media(p.cover))}" alt="${esc(productName(p))}" loading="lazy">`:''}</div><div class="product-meta"><span>${p.cat===null||p.cat===undefined?t('spreadsheet'):esc(t('cat')[p.cat])}</span><span>№ ${p.id}</span></div><h3>${esc(productName(p))}</h3><div class="product-tail"><span class="product-price">${esc(money(p.price))}</span><span class="arrow">→</span></div></a><button class="save ${saved.includes(p.id)?'active':''}" data-save="${p.id}" aria-label="${esc(saved.includes(p.id)?t('unsave'):t('save'))}" aria-pressed="${saved.includes(p.id)}">${saved.includes(p.id)?'♥':'♡'}</button></article>`}
 
-function productName(p){return p.translations?.[locale]||p.title}
+function productName(p){return localizedProductTitle(p,locale,dict)}
 function categoryLabel(slug){return t('categoryLabels')[slug]||slug}
 function categoryDirectory(compact=false){return `<section class="section category-directory"><div class="section-head"><div><h${compact?'2':'1'} class="page-title">${esc(t('navCategories'))}</h${compact?'2':'1'}><p>${esc(t('categorySub'))}</p></div></div><div class="main-category-map">${t('cat').map((name,i)=>`<article class="main-category-card"><h3><a href="/category/${i}/">${esc(name)}</a></h3><p>${esc(t('mainCategoryDescriptions')[i])}</p><a class="main-category-link" href="/category/${i}/">${esc(t('all'))} →</a></article>`).join('')}</div></section>`}
 

@@ -1,3 +1,4 @@
+export {configureStatic} from '../static-data.mjs';
 import { handle } from './lib/site.ts';
 export default {
   async fetch(request, env) {
