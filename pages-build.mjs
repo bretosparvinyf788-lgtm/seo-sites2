@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {renderPagesHome,installHeadRewriter} from './pages-home.mjs';
 
 // Each Pages project watches its own directory and this shared build entry.
 const domain=process.argv[2];
@@ -15,11 +16,12 @@ const copyPublic=()=>{if(fs.existsSync('public'))fs.cpSync('public',out,{recursi
 const routes=exclude=>write(out+'/_routes.json',JSON.stringify({version:1,include:['/*'],exclude}));
 const moduleFrom=async source=>import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 const assetsFrom=async(worker,paths)=>{for(const p of paths){const r=await worker.fetch(new Request('https://'+domain+p),{},{});if(!r.ok)throw new Error('Static asset failed: '+p);write(out+p,Buffer.from(await r.arrayBuffer()))}};
-const homeFrom=async worker=>{const r=await worker.fetch(new Request('https://'+domain+'/'),{},{});if(r.ok&&r.headers.get('content-type')?.includes('text/html'))write(out+'/index.html',await r.text());else throw new Error('Homepage build failed: '+r.status)};
+const homeFrom=async worker=>{const r=await worker.fetch(new Request('https://'+domain+'/'),process.env,{});if(r.ok&&r.headers.get('content-type')?.includes('text/html'))write(out+'/index.html',await r.text());else throw new Error('Homepage build failed: '+r.status)};
 fs.rmSync(out,{recursive:true,force:true});fs.mkdirSync(out,{recursive:true});
 if(domain==='cssbuyfindshub.com'){
  run('npx',['--yes','pnpm@11.25.0','install','--frozen-lockfile']);
  run('node',['scripts/build-cloudflare-pages.mjs']);
+ await renderPagesHome(domain,out);
 }else if(domain==='kakobuysheetdesk.com'){
  run('python3',['scripts/build-cloudflare.py']);
  fs.cpSync('cloudflare-dist',out,{recursive:true});
@@ -47,11 +49,13 @@ if(domain==='cssbuyfindshub.com'){
 }else if(domain==='oopbuyqcguide.com'){
  run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
  fs.cpSync('dist',out,{recursive:true});
+ installHeadRewriter();await homeFrom((await moduleFrom(fs.readFileSync(out+'/_worker.js','utf8'))).default);
  routes(['/site.css','/site.js','/favicon*','/apple-touch-icon.png','/oopbuy-logo.png','/guide/*','/qc-repairs/*']);
 }else if(domain==='lovegobuysheetlab.com'){
  run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
  copyPublic();
  const source=fs.readFileSync('dist-worker/worker.js','utf8');write(out+'/_worker.js',source);
+ installHeadRewriter();await homeFrom((await moduleFrom(source)).default);
  routes(['/site.css','/layout.css','/site.js','/lovegobuy-icon.png']);
 }else if(domain==='orientdigsheetdesk.com'||domain==='vigorbuysheetdesk.com'){
  if(domain==='orientdigsheetdesk.com')run('node',['scripts/build-pages.mjs']);else run('node',['scripts/build.mjs']);
