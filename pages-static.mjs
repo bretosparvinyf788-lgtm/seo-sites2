@@ -53,7 +53,7 @@ export async function exportStatic(domain,out,source){
   else if(superbuy)pages.push('/spreadsheet','/guide','/saved',...slugs.map(s=>'/category/'+(s==='perfume'?'fragrance':s)));
  }
  const productBase=css?'/products/':'/product/';
- const productIds=domain.startsWith('ootdbuy')?[...new Set([...Object.values(JSON.parse(fs.readFileSync('tools/catalog-full.json'))).flatMap(v=>v.items).map(p=>p.aid),'7896594713'])]:[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])];
+ const productIds=domain.startsWith('ootdbuy')?[]:[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])];
  pages.push(...productIds.map(id=>productBase+id+(desk?'/':'')));
  const htmlFile=p=>p==='/'?'index.html':p.endsWith('/')?p.slice(1)+'index.html':p.slice(1)+'.html';
  function inject(html){
@@ -80,7 +80,7 @@ export async function exportStatic(domain,out,source){
   write(out+'/sitemaps/pages.xml',xml(publicPages.filter(p=>!p.startsWith(productBase)).map(p=>origin+p)));
   const productPages=publicPages.filter(p=>p.startsWith(productBase));for(let i=0;i<productPages.length;i+=50)write(out+'/sitemaps/products-'+(i/50+1)+'.xml',xml(productPages.slice(i,i+50).map(p=>origin+p)));
   write(out+'/404.html','<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Page not found</title><body><h1>Page not found</h1><p>The requested page is unavailable.</p><a href="/">Return to the homepage</a></body></html>');
-  for(const name of ['_worker.js','_routes.json'])fs.rmSync(out+'/'+name,{recursive:true,force:true});
+  if(!domain.startsWith('ootdbuy'))for(const name of ['_worker.js','_routes.json'])fs.rmSync(out+'/'+name,{recursive:true,force:true});
   write(out+'/static-data.mjs',fs.readFileSync(path.join(root,'static-data.mjs')));write(out+'/pages-client.js',fs.readFileSync(path.join(root,'pages-client.js')));write(out+'/catalogue.json',JSON.stringify(data));write(out+'/rates.json',JSON.stringify(fx));
   write(out+'/_headers',(fs.existsSync(out+'/_headers')?fs.readFileSync(out+'/_headers','utf8')+'\n':'')+'/*.mjs\n  Content-Type: application/javascript; charset=utf-8\n/robots.txt\n  Content-Type: text/plain; charset=utf-8\n/sitemap*.xml\n  Content-Type: application/xml; charset=utf-8\n/api/qc-image/*\n  Content-Type: image/webp\n');
   console.log(JSON.stringify({domain,pages:pages.length,products:data.items.length,languages:languages.length,hosting:'Pages static assets',functions:0}));
