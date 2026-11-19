@@ -1,3 +1,4 @@
+(()=>{
 const D=window.DESK;
 const closePops=()=>document.querySelectorAll('[data-pop]').forEach(b=>{b.setAttribute('aria-expanded','false');document.getElementById(b.dataset.pop).hidden=true;});
 document.querySelectorAll('[data-pop]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const p=document.getElementById(b.dataset.pop),was=p.hidden;closePops();p.hidden=!was;b.setAttribute('aria-expanded',String(was));}));
@@ -16,3 +17,5 @@ function activateFaq(tab){faqTabs.forEach(b=>{const selected=b===tab;b.setAttrib
 faqTabs.forEach((b,i)=>{b.addEventListener('click',()=>activateFaq(b));b.addEventListener('keydown',e=>{let n;if(e.key==='ArrowRight')n=(i+1)%faqTabs.length;else if(e.key==='ArrowLeft')n=(i+faqTabs.length-1)%faqTabs.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=faqTabs.length-1;else return;e.preventDefault();activateFaq(faqTabs[n]);faqTabs[n].focus();});});
 document.addEventListener('click',e=>{if(!e.target.closest('.atlas-chapter')){const chapter=document.querySelector('.atlas-chapter');if(chapter)chapter.open=false;}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){const chapter=document.querySelector('.atlas-chapter[open]');if(chapter){chapter.open=false;chapter.querySelector('summary').focus();}}});
+
+})();

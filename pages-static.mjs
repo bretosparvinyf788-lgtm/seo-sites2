@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
 import {configureStatic,superProduct} from './static-data.mjs';
 import {installHeadRewriter} from './pages-home.mjs';
 const root=path.dirname(new URL(import.meta.url).pathname);
@@ -22,6 +23,7 @@ export function patchWorker(source,domain){
  return source;
 }
 export async function exportStatic(domain,out,source){
+ const revision=createHash('sha256').update(fs.readFileSync(path.join(root,'pages-client.js'))).update(fs.readFileSync(path.join(root,'static-data.mjs'))).update(fs.readFileSync(path.join(root,'common/catalogue.json'))).update(source||'').digest('hex').slice(0,12);
  const write=(f,v)=>{fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,v)};
  let languages=defaultLanguages;
  if(/^(kakobuy|sugargoo)/.test(domain))languages=Object.keys(JSON.parse(fs.readFileSync('tools/content.json')));
@@ -52,12 +54,13 @@ export async function exportStatic(domain,out,source){
  pages.push(...[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])].map(id=>productBase+id+(desk?'/':'')));
  const htmlFile=p=>p==='/'?'index.html':p.endsWith('/')?p.slice(1)+'index.html':p.slice(1)+'.html';
  function inject(html){
+  html=html.replaceAll('"/favicon.ico"','"/favicon.ico?v='+revision+'"');
   html=html.replace(/(src|href)="\/(?:media|image)\?url=([^"]+)"/g,(m,a,u)=>{try{return a+'="'+decodeURIComponent(u.replaceAll('&amp;','&')).replaceAll('&','&amp;')+'"'}catch{return m}});
   const id=ga[domain];if(id&&!html.includes(id))html=html.replace('</head>',`<script async src="https://www.googletagmanager.com/gtag/js?id=${id}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}');</script></head>`);
   const originalScripts=legacy?`<script>if(location.search&&!window.__pagesRendered){document.documentElement.dataset.staticQuery='1'}</script>`:'';
   // Defer the original inline application during query rendering; the renderer writes it once.
-  if(legacy)html=html.replace(/<script(?![^>]*type="application\/ld\+json")[^>]*>[\s\S]*?<\/script>/g,m=>'<script>if(!location.search||window.__pagesRendered)document.write('+JSON.stringify(m).replaceAll('<','\\u003c')+')</script>');
-  return html.replace('</head>',`<script>window.__pagesEnv=${JSON.stringify({...Object.fromEntries(['GOOGLE_SITE_VERIFICATION','BING_SITE_VERIFICATION'].filter(k=>process.env[k]).map(k=>[k,process.env[k]])),GA_MEASUREMENT_ID:ga[domain]})}</script><script src="/pages-client.js"></script>${originalScripts}</head>`);
+  if(legacy)html=html.replace(/<script(?![^>]*type="application\/ld\+json")[^>]*>[\s\S]*?<\/script>/g,m=>'<script>if(!location.search)document.write('+JSON.stringify(m).replaceAll('<','\\u003c')+')</script>');
+  return html.replace('</head>',`<script>window.__pagesEnv=${JSON.stringify({...Object.fromEntries(['GOOGLE_SITE_VERIFICATION','BING_SITE_VERIFICATION'].filter(k=>process.env[k]).map(k=>[k,process.env[k]])),GA_MEASUREMENT_ID:ga[domain]})}</script><script>window.__pagesVersion='${revision}'</script><script src="/pages-client.js?v=${revision}"></script>${originalScripts}</head>`);
  }
  try{
   // Preserve the four existing background-only QC retouches as static images.
