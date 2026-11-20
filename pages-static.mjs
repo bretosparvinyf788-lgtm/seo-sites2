@@ -60,7 +60,9 @@ export async function exportStatic(domain,out,source){
  function inject(html){
   html=html.replaceAll('"/favicon.ico"','"/favicon.ico?v='+revision+'"');
   html=html.replace(/(src|href)="\/(?:media|image)\?url=([^"]+)"/g,(m,a,u)=>{try{return a+'="'+decodeURIComponent(u.replaceAll('&amp;','&')).replaceAll('&','&amp;')+'"'}catch{return m}});
-  const id=ga[domain];if(id&&!html.includes(id))html=html.replace('</head>',`<script async src="https://www.googletagmanager.com/gtag/js?id=${id}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}');</script></head>`);
+  const id=ga[domain],directAnalytics=id?`<script async src="https://www.googletagmanager.com/gtag/js?id=${id}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}');</script>`:'';
+  if(id&&domain.startsWith('ootdbuy')){const allowed=JSON.stringify([domain,'www.'+domain]);html=html.replace(directAnalytics,`<script>if(${allowed}.includes(location.hostname)){const s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${id}';document.head.append(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}')}</script>`)}
+  else if(id&&!html.includes(id))html=html.replace('</head>',directAnalytics+'</head>');
   const originalScripts=legacy?`<script>if(location.search&&!window.__pagesRendered){document.documentElement.dataset.staticQuery='1'}</script>`:'';
   // Defer the original inline application during query rendering; the renderer writes it once.
   if(legacy)html=html.replace(/<script(?![^>]*type="application\/ld\+json")[^>]*>[\s\S]*?<\/script>/g,m=>'<script>if(!location.search)document.write('+JSON.stringify(m).replaceAll('<','\\u003c')+')</script>');
