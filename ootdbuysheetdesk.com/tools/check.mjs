@@ -86,6 +86,8 @@ assert(imageSearchPage.includes('semanticCategoryKey'));
 assert(imageSearchPage.includes('publishMatches(visualMatches)'));
 assert(imageSearchPage.indexOf('publishMatches(visualMatches)') < imageSearchPage.indexOf('await classifyCategory(file)'));
 assert(imageSearchPage.includes('visualMatches.some(item=>item.exact)'));
+assert(imageSearchPage.includes('semanticClassifierPromise=loadSemanticClassifier()'));
+assert(imageSearchPage.includes('semanticCategoryKey?scoreAll(target,semanticCategoryKey):visualMatches'));
 assert(!imageSearchPage.includes('a.slice(0,188).reduce'));
 assert(imageSearchPage.includes('categoryGroups'));
 assert(imageSearchPage.includes('categoryDistance(target,item.features[0])'));
