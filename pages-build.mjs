@@ -50,6 +50,7 @@ if(domain==='cssbuyfindshub.com'){
  write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/png\n  Cache-Control: public, max-age=86400\n');
 }else if(domain==='ootdbuysheetdesk.com'){
  run('node',['tools/build.mjs']);
+ write(out+'/visual-index.json',fs.readFileSync('dist/visual-index.json'));
  let source=fs.readFileSync('dist/server/index.js','utf8');
  const data=JSON.parse(fs.readFileSync('tools/assets.json'));
  for(const asset of Object.values(data))write(out+'/asset/'+asset.key,Buffer.from(asset.data,'base64'));
@@ -66,8 +67,8 @@ if(domain==='cssbuyfindshub.com'){
  write(out+'/_worker.js',source);
  const worker=(await moduleFrom(source)).default;
  await assetsFrom(worker,['/favicon.ico']);await homeFrom(worker);
- routes(['/asset/*','/guide-image/*','/favicon.ico']);
- write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n');
+ routes(['/asset/*','/guide-image/*','/favicon.ico','/visual-index.json']);
+ write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/visual-index.json\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: public, max-age=86400\n');
 }else if(domain==='oopbuyqcguide.com'){
  if(!process.env.PAGES_REUSE_DEPENDENCIES)run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
  fs.cpSync('dist',out,{recursive:true});

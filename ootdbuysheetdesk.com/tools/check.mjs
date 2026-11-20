@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
 import app from "../worker/index.js";
 
 const get = (path) => app.fetch(new Request(`https://ootdbuysheetdesk.com${path}`), {}, {});
@@ -69,9 +70,10 @@ assert(imageSearchPage.includes('id="image-search-input"'));
 assert(!imageSearchPage.includes('id="image-search-submit"'));
 assert(!/id="image-search-panel"[^>]* hidden/.test(imageSearchPage));
 
-const imageIndex = JSON.parse(imageSearchPage.match(/<script type="application\/json" id="image-search-index">([^<]+)<\/script>/)[1]);
+assert(imageSearchPage.includes('id="image-search-index" data-src="/visual-index.json">[]</script>'));
+const imageIndex = JSON.parse(await readFile(new URL("../dist/visual-index.json", import.meta.url), "utf8"));
 assert.equal(imageIndex.length, 4355);
-assert(imageIndex.every((item) => item.aid && item.image && item.title && item.category && item.categoryKey && item.features.length));
+assert(imageIndex.every((item) => item.aid && item.image && item.title && item.categoryKey && item.features.length));
 assert.equal(imageIndex.reduce((total, item) => total + item.features.length, 0), 31829);
 assert(imageIndex.every((item) => item.features.every((feature) => Buffer.from(feature, 'base64').length === 332)));
 const imageCategoryCounts = imageIndex.reduce((counts, item) => counts.set(item.categoryKey, (counts.get(item.categoryKey) || 0) + 1), new Map());
