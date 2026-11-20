@@ -102,6 +102,7 @@ assert(!imageSearchPage.includes('ootdbuy.com/goods/details'));
 assert(imageSearchPage.includes('compared only with products already listed on OOTDBuy Sheetdesk'));
 assert.equal((imageSearchPage.match(/data-image-page=/g) || []).length, 3);
 assert(imageSearchPage.includes("status.textContent=imagePanel.dataset.ready;void runSearch()"));
+assert(home.includes("location.href='/product/'+encodeURIComponent(id)"));
 
 for (const lang of ["en", "zh-CN", "de", "fr", "es", "ja", "ko", "ar"]) {
   const page = await html(`/?lang=${lang}`);
