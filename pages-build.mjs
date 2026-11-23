@@ -69,6 +69,27 @@ if(domain==='cssbuyfindshub.com'){
  await assetsFrom(worker,['/favicon.ico']);await homeFrom(worker);
  routes(['/asset/*','/guide-image/*','/favicon.ico','/visual-index.json']);
  write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/visual-index.json\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: public, max-age=86400\n');
+}else if(domain==='lolobuyfindsdesk.com'){
+ run('node',['tools/build.mjs']);
+ write(out+'/visual-index.json',fs.readFileSync('dist/visual-index.json'));
+ let source=fs.readFileSync('dist/server/index.js','utf8');
+ const data=JSON.parse(fs.readFileSync('tools/assets.json'));
+ for(const asset of Object.values(data))write(out+'/asset/'+asset.key,Buffer.from(asset.data,'base64'));
+ const guides=JSON.parse(fs.readFileSync('tools/guide-images.json'));
+ guides.forEach((value,index)=>write(out+'/guide-image/'+index,Buffer.from(value,'base64')));
+ source=source.replace('ASSETS='+JSON.stringify(data),'ASSETS='+JSON.stringify(Object.fromEntries(Object.entries(data).map(([url,asset])=>[url,{key:asset.key}]))));
+ source=source.replace('GUIDE_IMAGES='+JSON.stringify(guides),'GUIDE_IMAGES='+JSON.stringify(guides.map(()=>true)));
+ const assetStart=source.indexOf("if(u.pathname.startsWith('/asset/'))");
+ const assetEnd=source.indexOf("if(u.pathname==='/image')",assetStart);
+ const guideStart=source.indexOf("if(u.pathname.startsWith('/guide-image/'))");
+ const guideEnd=source.indexOf("if(u.pathname==='/api/rates')",guideStart);
+ if(assetStart<0||assetEnd<0||guideStart<0||guideEnd<0)throw new Error('LoloBuy asset handler changed');
+ source=source.slice(0,assetStart)+"if(u.pathname.startsWith('/asset/'))return env.ASSETS.fetch(request);\n"+source.slice(assetEnd,guideStart)+"if(u.pathname.startsWith('/guide-image/'))return env.ASSETS.fetch(request);\n"+source.slice(guideEnd);
+ write(out+'/_worker.js',source);
+ const worker=(await moduleFrom(source)).default;
+ await assetsFrom(worker,['/favicon.ico']);await homeFrom(worker);
+ routes(['/asset/*','/guide-image/*','/favicon.ico','/visual-index.json']);
+ write(out+'/_headers','/asset/*\n  Content-Type: image/webp\n  Cache-Control: public, max-age=86400\n/guide-image/*\n  Content-Type: image/png\n  Cache-Control: public, max-age=86400\n/visual-index.json\n  Content-Type: application/json; charset=utf-8\n  Cache-Control: public, max-age=86400\n');
 }else if(domain==='oopbuyqcguide.com'){
  if(!process.env.PAGES_REUSE_DEPENDENCIES)run('npm',['install','--no-audit','--no-fund']);run('npm',['run','build']);
  fs.cpSync('dist',out,{recursive:true});

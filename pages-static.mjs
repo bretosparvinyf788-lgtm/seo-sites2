@@ -11,7 +11,7 @@ const data=JSON.parse(fs.readFileSync(path.join(root,'common/catalogue.json'))),
 configureStatic(data,fx);
 const defaultLanguages=['en','de','fr','es','it','nl','pt','pl','ro','sv','zh','da','fi','el','cs','hu','bg','sk','hr','ja','ko','vi','th','id'];
 const slugs=['shoes','t-shirts','clothing','hoodies','pants','belts','bags','perfume','electronics','other'];
-const ga={'vigorbuysheetdesk.com':'G-Q1QMYKSCX9','orientdigsheetdesk.com':'G-PYD6BSR5Y8','cssbuyfindshub.com':'G-Z9V5QHJJHP','kakobuysheetdesk.com':'G-TQ0S977B2V','lovegobuysheetlab.com':'G-EY5KH97XMY','oopbuyqcguide.com':'G-PSFZGP4H0M','sugargoosheetdesk.com':'G-CF8XXTL53F','ootdbuysheetdesk.com':'G-SN1WS560YB'};
+const ga={'vigorbuysheetdesk.com':'G-Q1QMYKSCX9','orientdigsheetdesk.com':'G-PYD6BSR5Y8','cssbuyfindshub.com':'G-Z9V5QHJJHP','kakobuysheetdesk.com':'G-TQ0S977B2V','lovegobuysheetlab.com':'G-EY5KH97XMY','oopbuyqcguide.com':'G-PSFZGP4H0M','sugargoosheetdesk.com':'G-CF8XXTL53F','ootdbuysheetdesk.com':'G-SN1WS560YB','lolobuyfindsdesk.com':'G-G15SH577PC'};
 const replaceLiteral=(s,name,value)=>{const re=new RegExp('\\b'+name+'=');const m=re.exec(s);if(!m)throw Error('Missing literal '+name);let i=m.index+m[0].length,j=i;const first=s[i];if(first==='{'||first==='['){let depth=0,quote=false,escape=false;for(;j<s.length;j++){const c=s[j];if(quote){if(escape)escape=false;else if(c==='\\')escape=true;else if(c==='"')quote=false}else if(c==='"')quote=true;else if(c==='['||c==='{')depth++;else if(c===']'||c==='}'){if(!--depth){j++;break}}}}else throw Error('Not a JSON literal '+name);return s.slice(0,i)+JSON.stringify(value)+s.slice(j)};
 export function patchWorker(source,domain){
  if(/^(kakobuy|sugargoo)/.test(domain)){
@@ -20,14 +20,14 @@ export function patchWorker(source,domain){
   if(domain.startsWith('sugargoo'))source=replaceLiteral(source,'RATES',{rates:fx.rates,updated:fx.time_last_update_utc});
  }
  if(domain.startsWith('superbuy')){source=replaceLiteral(source,'CATALOGUE',data.items.map(p=>superProduct(p.id)));source=replaceLiteral(source,'SEEDS',Object.fromEntries(data.items.map(p=>[p.id,superProduct(p.id)])));}
- if(!/^(lovegobuy|oopbuy|ootdbuy)/.test(domain))source=fs.readFileSync(path.join(root,'static-data.mjs'),'utf8')+'\n'+source;
+ if(!/^(lovegobuy|oopbuy|ootdbuy|lolobuy)/.test(domain))source=fs.readFileSync(path.join(root,'static-data.mjs'),'utf8')+'\n'+source;
  return source;
 }
 export async function exportStatic(domain,out,source){
  const revision=createHash('sha256').update(fs.readFileSync(path.join(root,'pages-client.js'))).update(fs.readFileSync(path.join(root,'static-data.mjs'))).update(fs.readFileSync(path.join(root,'common/catalogue.json'))).update(source||'').digest('hex').slice(0,12);
  const write=(f,v)=>{fs.mkdirSync(path.dirname(f),{recursive:true});fs.writeFileSync(f,v)};
  let languages=defaultLanguages;
- if(/^(kakobuy|sugargoo|ootdbuy)/.test(domain))languages=Object.keys(JSON.parse(fs.readFileSync('tools/content.json')));
+ if(/^(kakobuy|sugargoo|ootdbuy|lolobuy)/.test(domain))languages=Object.keys(JSON.parse(fs.readFileSync('tools/content.json')));
  else if(domain.startsWith('superbuy'))languages=(await import(path.join(root,domain,'src/content.js'))).LANGS.map(x=>x[0]);
  else if(domain.startsWith('cssbuy'))languages=JSON.parse(fs.readFileSync('app/hub.tsx','utf8').match(/const languages=(\[.*?\]);/)[1].replaceAll("'",'"')).map(x=>x[0]);
  else if(/^(lovegobuy|oopbuy)/.test(domain))languages=[...fs.readFileSync('lib/i18n.ts','utf8').match(/export const languages[^=]*=\{([^}]+)\}/)[1].matchAll(/(?:^|,)\s*(\w+):/g)].map(x=>x[1]);
@@ -49,19 +49,21 @@ export async function exportStatic(domain,out,source){
    pages.push(domain.startsWith('oopbuy')?'/products':'/finds','/guide',...slugs.map((s,i)=>'/category/'+(domain.startsWith('oopbuy')?i+2:s)));
    if(/^(lovegobuy|oopbuy)/.test(domain))pages.push('/categories');
    if(domain.startsWith('lovegobuy'))pages.push('/qc-checklist','/faq');
-  }else if(domain.startsWith('ootdbuy'))pages.push('/categories','/image-search','/finds',...slugs.map(s=>'/category/'+s));
+  }else if(/^(ootdbuy|lolobuy)/.test(domain))pages.push('/categories','/image-search','/finds',...slugs.map(s=>'/category/'+s));
   else if(desk)pages.push('/catalog/','/categories/','/faq/','/saved/','/privacy/',...slugs.map((s,i)=>'/category/'+i+'/'),...(domain.startsWith('orientdig')?['/image-search/']:[]));
   else if(superbuy)pages.push('/spreadsheet','/guide','/saved',...slugs.map(s=>'/category/'+(s==='perfume'?'fragrance':s)));
  }
  const productBase=css?'/products/':'/product/';
- const productIds=domain.startsWith('ootdbuy')?[...new Set([...Object.values(JSON.parse(fs.readFileSync('tools/catalog-full.json'))).flatMap(v=>v.items).map(p=>p.aid),'7896594713'])]:[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])];
+ const localProducts=/^(ootdbuy|lolobuy)/.test(domain)?Object.values(JSON.parse(fs.readFileSync('tools/catalog-full.json'))).flatMap(v=>v.items):[];
+ const linkedProducts=domain.startsWith('lolobuy')?(()=>{const qc=JSON.parse(fs.readFileSync('tools/main-qc.json'));return localProducts.filter(p=>/^\d+$/.test(String(qc.items[p.aid]?.id||'')))})():localProducts;
+ const productIds=/^(ootdbuy|lolobuy)/.test(domain)?[...new Set([...linkedProducts.map(p=>p.aid),'7896594713'])]:[...new Set([...data.items.map(p=>p.id),...(/^(kakobuy|sugargoo)/.test(domain)?Object.keys(data.aliases||{}):[])])];
  pages.push(...productIds.map(id=>productBase+id+(desk?'/':'')));
  const htmlFile=p=>p==='/'?'index.html':p.endsWith('/')?p.slice(1)+'index.html':p.slice(1)+'.html';
  function inject(html){
   html=html.replaceAll('"/favicon.ico"','"/favicon.ico?v='+revision+'"');
   html=html.replace(/(src|href)="\/(?:media|image)\?url=([^"]+)"/g,(m,a,u)=>{try{return a+'="'+decodeURIComponent(u.replaceAll('&amp;','&')).replaceAll('&','&amp;')+'"'}catch{return m}});
   const id=ga[domain],directAnalytics=id?`<script async src="https://www.googletagmanager.com/gtag/js?id=${id}"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}');</script>`:'';
-  if(id&&domain.startsWith('ootdbuy')){const allowed=JSON.stringify([domain,'www.'+domain]);html=html.replace(directAnalytics,`<script>if(${allowed}.includes(location.hostname)){const s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${id}';document.head.append(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}')}</script>`)}
+  if(id&&/^(ootdbuy|lolobuy)/.test(domain)){const allowed=JSON.stringify([domain,'www.'+domain]);html=html.replace(directAnalytics,`<script>if(${allowed}.includes(location.hostname)){const s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${id}';document.head.append(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${id}')}</script>`)}
   else if(id&&!html.includes(id))html=html.replace('</head>',directAnalytics+'</head>');
   const originalScripts=legacy?`<script>if(location.search&&!window.__pagesRendered){document.documentElement.dataset.staticQuery='1'}</script>`:'';
   // Defer the original inline application during query rendering; the renderer writes it once.
@@ -83,7 +85,7 @@ export async function exportStatic(domain,out,source){
   write(out+'/sitemaps/pages.xml',xml(publicPages.filter(p=>!p.startsWith(productBase)).map(p=>origin+p)));
   const productPages=publicPages.filter(p=>p.startsWith(productBase));for(let i=0;i<productPages.length;i+=50)write(out+'/sitemaps/products-'+(i/50+1)+'.xml',xml(productPages.slice(i,i+50).map(p=>origin+p)));
   write(out+'/404.html','<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Page not found</title><body><h1>Page not found</h1><p>The requested page is unavailable.</p><a href="/">Return to the homepage</a></body></html>');
-  if(!domain.startsWith('ootdbuy'))for(const name of ['_worker.js','_routes.json'])fs.rmSync(out+'/'+name,{recursive:true,force:true});
+  if(!/^(ootdbuy|lolobuy)/.test(domain))for(const name of ['_worker.js','_routes.json'])fs.rmSync(out+'/'+name,{recursive:true,force:true});
   write(out+'/static-data.mjs',fs.readFileSync(path.join(root,'static-data.mjs')));write(out+'/pages-client.js',fs.readFileSync(path.join(root,'pages-client.js')));write(out+'/catalogue.json',JSON.stringify(data));write(out+'/rates.json',JSON.stringify(fx));
   write(out+'/_headers',(fs.existsSync(out+'/_headers')?fs.readFileSync(out+'/_headers','utf8')+'\n':'')+'/*.mjs\n  Content-Type: application/javascript; charset=utf-8\n/robots.txt\n  Content-Type: text/plain; charset=utf-8\n/sitemap*.xml\n  Content-Type: application/xml; charset=utf-8\n/api/qc-image/*\n  Content-Type: image/webp\n');
   console.log(JSON.stringify({domain,pages:pages.length,products:data.items.length,languages:languages.length,hosting:'Pages static assets',functions:0}));
