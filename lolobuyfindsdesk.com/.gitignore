@@ -1,0 +1,6 @@
+dist/
+worker/index.js
+tools/image-cache/
+tools/pages-cache/
+tools/*candidate.json
+node_modules/
