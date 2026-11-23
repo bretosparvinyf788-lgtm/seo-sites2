@@ -4,7 +4,7 @@ Independent OrientDig product discovery website. Worker reads the complete pagin
 
 Registration: https://orientdig.com/register?ref=100249252
 Purchase route: https://orientdig.com/product?id=ITEM_ID&platform=WEIDIAN&productUrl=&productPwd=
-GA4: G-PYD6BSR5Y8, enabled after visitor consent.
+GA4: G-PYD6BSR5Y8, enabled for every page view without a consent prompt.
 
 Default English, 24 language bundles, separate approximate display currencies, ten main-site categories with descriptions, independent category and product pages, search, favorites, 12 homepage picks and refresh, sixteen FAQ answers, no buying guide, following the latest requirements. Original source product titles are retained.
 
