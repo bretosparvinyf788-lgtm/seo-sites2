@@ -44,7 +44,7 @@ for (const product of linked) {
   }
 }
 
-const sitemap = await (await app.fetch(new Request("https://lolobuyfindsdesk.com/sitemap.xml"), {}, {})).text();
+const sitemap = await (await app.fetch(new Request("https://lolobuyfindsdesk.com/sitemap-en.xml"), {}, {})).text();
 for (const route of routes) assert(sitemap.includes(route), `sitemap is missing ${route}`);
 for (const product of unlinked) {
   assert(!sitemap.includes(`/product/${product.aid}`), `unlinked product ${product.aid} is still published`);

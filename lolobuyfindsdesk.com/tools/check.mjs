@@ -213,9 +213,18 @@ assert(!homepage.includes('id="home-category-select"'));
 
 assert.equal((await get("/guide")).status, 404);
 const sitemap = await html("/sitemap.xml");
-assert(sitemap.includes("https://lolobuyfindsdesk.com/product/7896594713"));
-assert(sitemap.includes("https://lolobuyfindsdesk.com/categories"));
-assert(sitemap.includes("https://lolobuyfindsdesk.com/image-search"));
+assert(sitemap.includes("<sitemapindex"));
+assert.equal((sitemap.match(/<sitemap>/g) || []).length, 24);
+assert(sitemap.includes("https://lolobuyfindsdesk.com/sitemap-en.xml"));
+assert(sitemap.includes("https://lolobuyfindsdesk.com/sitemap-zh-CN.xml"));
 assert(!sitemap.includes("/guide"));
+const englishSitemap = await html("/sitemap-en.xml");
+assert(englishSitemap.includes("https://lolobuyfindsdesk.com/product/7896594713"));
+assert(englishSitemap.includes("https://lolobuyfindsdesk.com/categories"));
+assert(englishSitemap.includes("https://lolobuyfindsdesk.com/image-search"));
+assert(!englishSitemap.includes("?lang="));
+const chineseSitemap = await html("/sitemap-zh-CN.xml");
+assert(chineseSitemap.includes("https://lolobuyfindsdesk.com/product/7896594713?lang=zh-CN"));
+assert.equal((await get("/sitemap-xx.xml")).status, 404);
 
 console.log("Passed: site-specific LoloBuy Finds Desk header, compact no-scroll categories, no duplicate preview or generic explainer cards, image search, category directory, 24-locale source, GA, referral links, sample product and sitemap.");
