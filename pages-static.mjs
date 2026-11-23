@@ -73,7 +73,7 @@ export async function exportStatic(domain,out,source){
  try{
   // Preserve the four existing background-only QC retouches as static images.
   if(css)for(const key of ['3618-2','3618-3','3618-4','3618-5']){const r=await get('/api/qc-image/'+key+(key==='3618-5'?'?v=2':''));if(!r.ok)throw Error('QC retouch export failed '+key);const bytes=Buffer.from(await r.arrayBuffer());let svg=bytes.toString('utf8');const wranglerRequire=createRequire(fs.realpathSync('node_modules/wrangler/package.json')),sharp=createRequire(wranglerRequire.resolve('miniflare'))('sharp');for(const match of [...svg.matchAll(/data:image\/webp;base64,([^"]+)/g)]){const png=await sharp(Buffer.from(match[1],'base64')).png().toBuffer();svg=svg.replace(match[0],'data:image/png;base64,'+png.toString('base64'))}write(out+'/api/qc-image/'+key,await sharp(svg.includes('<svg')?Buffer.from(svg):bytes).webp({quality:92}).toBuffer())}
-  let next=0,completed=0;const work=async()=>{while(next<pages.length){const p=pages[next++],r=await get(p);if(!r.ok)throw Error('Static page failed '+p+': '+r.status);const html=await r.text();if(!html.includes('<html')||html.length<1000)throw Error('Incomplete static page '+p);write(out+'/'+htmlFile(p),inject(html));if(++completed%500===0)console.log('Exported '+completed+'/'+pages.length+' '+domain)}};
+  let next=0,completed=0;const work=async()=>{while(next<pages.length){const p=pages[next++];if(domain.startsWith('lolobuy')&&p.startsWith(productBase)){completed++;continue}const r=await get(p);if(!r.ok)throw Error('Static page failed '+p+': '+r.status);const html=await r.text();if(!html.includes('<html')||html.length<1000)throw Error('Incomplete static page '+p);write(out+'/'+htmlFile(p),inject(html));if(++completed%500===0)console.log('Exported '+completed+'/'+pages.length+' '+domain)}};
   await Promise.all(Array.from({length:css?4:1},work));
   // Per-language maps stay below the 50,000 URL limit, including all detail pages.
   const origin='https://'+domain,escape=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;');
@@ -88,6 +88,6 @@ export async function exportStatic(domain,out,source){
   if(!/^(ootdbuy|lolobuy)/.test(domain))for(const name of ['_worker.js','_routes.json'])fs.rmSync(out+'/'+name,{recursive:true,force:true});
   write(out+'/static-data.mjs',fs.readFileSync(path.join(root,'static-data.mjs')));write(out+'/pages-client.js',fs.readFileSync(path.join(root,'pages-client.js')));write(out+'/catalogue.json',JSON.stringify(data));write(out+'/rates.json',JSON.stringify(fx));
   write(out+'/_headers',(fs.existsSync(out+'/_headers')?fs.readFileSync(out+'/_headers','utf8')+'\n':'')+'/*.mjs\n  Content-Type: application/javascript; charset=utf-8\n/robots.txt\n  Content-Type: text/plain; charset=utf-8\n/sitemap*.xml\n  Content-Type: application/xml; charset=utf-8\n/api/qc-image/*\n  Content-Type: image/webp\n');
-  console.log(JSON.stringify({domain,pages:pages.length,products:data.items.length,languages:languages.length,hosting:'Pages static assets',functions:0}));
+  console.log(JSON.stringify({domain,pages:pages.length,products:productIds.length,languages:languages.length,hosting:'Cloudflare Pages',functions:/^(ootdbuy|lolobuy)/.test(domain)?1:0}));
  }finally{close()}
 }
