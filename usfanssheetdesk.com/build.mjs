@@ -1,3 +1,4 @@
+if(process.env.CF_PAGES_BRANCH==='main')throw Error('Internal QA build cannot run on main');
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
@@ -18,3 +19,13 @@ if(fs.existsSync('dist/_redirects'))fs.unlinkSync('dist/_redirects');
 fs.writeFileSync('dist/_headers','/*\n  Referrer-Policy: no-referrer\n  X-Content-Type-Options: nosniff\n/catalog.json\n  Cache-Control: no-store\n/gallery-index.json\n  Cache-Control: no-store\n/data/galleries/*\n  Cache-Control: no-store\n');
 if(fs.existsSync('verification'))fs.cpSync('verification','dist',{recursive:true});
 console.log(`Prepared ${c.length} products, ${manifest.galleries} verified galleries and production-only analytics.`);
+
+const qa=JSON.parse(fs.readFileSync('qa/manifest.json','utf8'));
+const qaParts=qa.parts.map(p=>{const b=fs.readFileSync(p.path);if(hash(b)!==p.sha256)throw Error('QA checksum');return b});
+const qaArchive=Buffer.concat(qaParts);if(hash(qaArchive)!==qa.sha256)throw Error('QA archive checksum');
+fs.writeFileSync('qa-overlay.tar.xz',qaArchive);execFileSync('tar',['-xJf','qa-overlay.tar.xz','--no-same-owner']);
+const oldIndex=fs.readFileSync('dist/index.html','utf8');
+for(const [source,pattern] of [['qa-app.js',/assets\/(app-[a-f0-9]+\.js)/],['qa-style.css',/assets\/(style-[a-f0-9]+\.css)/]]){const m=oldIndex.match(pattern);if(!m)throw Error('Missing QA asset');fs.copyFileSync(source,'dist/assets/'+m[1])}
+fs.appendFileSync('dist/_headers','/*\n  X-Robots-Tag: noindex, nofollow\n');
+fs.writeFileSync('dist/robots.txt','User-agent: *\nDisallow: /\n');
+console.log('Internal partial-index runtime QA only; full production gate remains required');
