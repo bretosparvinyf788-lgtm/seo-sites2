@@ -9,3 +9,5 @@ Cloudflare Pages configuration: repository `seo-sites2`, production branch `main
 Google Analytics G-4K90H51CBJ runs only on the production apex and www hostnames. Local development, Sites previews and pages.dev previews do not send analytics. Site-verification files may be added under `verification` and are copied into the output by the build.
 
 31 source products do not supply independent SKU photos. Three source records have no QC reference photos. Full translated guide/FAQ content outside English and Chinese, three later mobile parcel screenshots, image-based product search and a complete source-image contact/QR audit remain separate work; this release does not claim these are finished.
+
+Production deployment: GitHub main feeds Cloudflare Pages project `usfanssheetdesk-git`. Both apex and www have active HTTPS. A zone redirect rule sends www to the apex with status301, preserving path and query. Google Search Console domain verification passed and the sitemap has Success with4,785 URLs. Bing verification passed and the submitted sitemap is processing.
