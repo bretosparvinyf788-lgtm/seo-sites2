@@ -8,6 +8,14 @@ Cloudflare Pages configuration: repository `seo-sites2`, production branch `main
 
 Google Analytics G-4K90H51CBJ runs only on the production apex and www hostnames. Local development, Sites previews and pages.dev previews do not send analytics. Site-verification files may be added under `verification` and are copied into the output by the build.
 
-31 source products do not supply independent SKU photos. Three source records have no QC reference photos. Full translated guide/FAQ content outside English and Chinese, three later mobile parcel screenshots, image-based product search and a complete source-image contact/QR audit remain separate work; this release does not claim these are finished.
+The detailed15-step device-specific guide and12FAQ answers support24languages. Additional translations use offlineMetaM2M100 with editorial corrections to key controls and titles; they have not all been proofread by native speakers. Photo search uses local-browser CLIPViT-B/32 matching against all4771product images; uploaded photographs are not transmitted. The first search downloads about90MB, then attempts to cache the model.
 
-Production deployment: GitHub main feeds Cloudflare Pages project `usfanssheetdesk-git`. Both apex and www have active HTTPS. A zone redirect rule sends www to the apex with status301, preserving path and query. Google Search Console domain verification passed and the sitemap has Success with4,785 URLs. Bing verification passed and the submitted sitemap is processing.
+31source products do not supply independent SKU photos and3source products have no QC reference photos. Three later phone address/route/shipping-payment forms still lack verifiable mobile screenshots; official historical phone examples and concrete instructions are labelled accurately. The complete148712unique-original-photo contact/QR audit remains unfinished. No order or payment was made for the tutorial.
+
+For rebuilding the visual index, use the pinned officialonnxruntime==1.23.2, with optional telemetry disabled. Version1.32 caused an unrelated telemetry connection and is not used by this pipeline. Modelrevision and source-image provenance are recorded in the index and visual recovery checkpoints.
+
+Production deployment: GitHub main feeds Cloudflare Pages project `usfanssheetdesk-git`. Both apex and www have active HTTPS. A zone redirect rule sends www to the apex with status301, preserving path and query. Google Search Console domain verification passed and the sitemap has Success with4,785 URLs. Bing verification and sitemap processing both succeeded, with zero reported errors or warnings.
+
+Photo search and the localized guide use the complete catalogue snapshot dated26Nov2026. Rebuilds of the image index must use the pinned CLIPvision model SHA256583fd1110a514667812fee7d684952aaf82a99b959760c8d7dca7e0ab9839299. Optional authoring model/cache locations are configurable withUSFANS_CLIP_MODEL, USFANS_COVER_CACHE andUSFANS_TRANSLATION_MODEL_DIR. After regenerating translations, runpython finalize_completion.py to retain editorial corrections and verify coverage.
+
+For production QA, append?analytics=off; it suppresses collection before the tracking script is loaded. Preview branches also returnX-Robots-Tag:noindex,nofollow and disallow crawling.
