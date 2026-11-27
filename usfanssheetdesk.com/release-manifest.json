@@ -1,0 +1,127 @@
+{
+  "domain": "usfanssheetdesk.com",
+  "source_commit": "ad270293f678a69841641c6a61e60f8ada2f642d",
+  "archive_sha256": "354c049b58fa5c578e4222df32ca90e8a3cb205642338f0fc23c297de73428d7",
+  "bytes": 8996772,
+  "products": 4771,
+  "galleries": 4771,
+  "style_images": 119110,
+  "files": 9638,
+  "parts": [
+    {
+      "path": "release/part-000.xz",
+      "bytes": 393216,
+      "sha256": "5fabdc9903cf2985b45b72ee2546d9873e4fd2b1125176c3a204dedbfe5c7508"
+    },
+    {
+      "path": "release/part-001.xz",
+      "bytes": 393216,
+      "sha256": "0cbb0a62701f0fa60cc6077a68476a49401d82a6232f8639a7d0e8e6cc82104c"
+    },
+    {
+      "path": "release/part-002.xz",
+      "bytes": 393216,
+      "sha256": "e5e2efa0281a66af46a15ee723cb269b369bbf04a0800938fb2bd2e459ba7243"
+    },
+    {
+      "path": "release/part-003.xz",
+      "bytes": 393216,
+      "sha256": "6de131deae2c2c25f527cd0f0009c74020601843178374a1e27cb8864d873abb"
+    },
+    {
+      "path": "release/part-004.xz",
+      "bytes": 393216,
+      "sha256": "9f88c3224fc8665ae90c1b63c70c4c9393ac5b4b2810701ffddfa85d6f8b019d"
+    },
+    {
+      "path": "release/part-005.xz",
+      "bytes": 393216,
+      "sha256": "fb0294db266f82fa4210db822c1ca907dc4a27eece39cea766209fc9e61f1cf8"
+    },
+    {
+      "path": "release/part-006.xz",
+      "bytes": 393216,
+      "sha256": "610a4f8e55aaf5579339d032043018d8a1fe9ff0bb737405e44d4b26a2850335"
+    },
+    {
+      "path": "release/part-007.xz",
+      "bytes": 393216,
+      "sha256": "814ea6a724b171b1b5a8e2da3546d34bda2415035ca5f65a0e9e521117c72d0f"
+    },
+    {
+      "path": "release/part-008.xz",
+      "bytes": 393216,
+      "sha256": "254d32945f1dda51aa85b9c23cce017c73a9641f9fcc73eee2307b6c9e8134f5"
+    },
+    {
+      "path": "release/part-009.xz",
+      "bytes": 393216,
+      "sha256": "8610905a94b9b69eecd323fdf88f5063602c7b4ee7a25b4cc2e66c4adc0db2d9"
+    },
+    {
+      "path": "release/part-010.xz",
+      "bytes": 393216,
+      "sha256": "9cabb9afb534ee582311a3694706b9d59d8d6ee4f2fb49ab6d7358ad6fde641a"
+    },
+    {
+      "path": "release/part-011.xz",
+      "bytes": 393216,
+      "sha256": "6a8dded0db651a71184d1b90695f688325c818291dd589ef29dd3f10a81d2e9b"
+    },
+    {
+      "path": "release/part-012.xz",
+      "bytes": 393216,
+      "sha256": "277a9f04fa8058ee171e9341202e9e3548196f024b0ceb6d298f394fdd3cff20"
+    },
+    {
+      "path": "release/part-013.xz",
+      "bytes": 393216,
+      "sha256": "e82aa85c3c8f491d0e8d96e8285f341d3881c391b56d1acddaf2d939a0056b51"
+    },
+    {
+      "path": "release/part-014.xz",
+      "bytes": 393216,
+      "sha256": "b2b8307ae9ccef83811e29fdef8aa0b3f650da2864bfd46a3fb74829347c905b"
+    },
+    {
+      "path": "release/part-015.xz",
+      "bytes": 393216,
+      "sha256": "f0e0b6dc6b84fffa94a11726b4409c3adb1f0b015df598bf528b3a94fceaa5e8"
+    },
+    {
+      "path": "release/part-016.xz",
+      "bytes": 393216,
+      "sha256": "a6c2bd10fb6c5b646a368f8bdf2ed9c452370d6e393c9aa459a01d5402cdd5bd"
+    },
+    {
+      "path": "release/part-017.xz",
+      "bytes": 393216,
+      "sha256": "1720ab2bc6447bbe43392725d71a8c4b8dd15775c5cc59b29380b476cd997188"
+    },
+    {
+      "path": "release/part-018.xz",
+      "bytes": 393216,
+      "sha256": "616d572413c4fabef4652c310037c2bfada9a16b3c23d45ed1700f41504b195f"
+    },
+    {
+      "path": "release/part-019.xz",
+      "bytes": 393216,
+      "sha256": "f6d82c70fcbec5800ebb221146f0bd9e3b7c6855078fd48f65e97ac45d1c52ee"
+    },
+    {
+      "path": "release/part-020.xz",
+      "bytes": 393216,
+      "sha256": "8f15e88b6e94f6ce96f166eab01e67d8c90cf87c8d9c526b7469f64ceefbd2cf"
+    },
+    {
+      "path": "release/part-021.xz",
+      "bytes": 393216,
+      "sha256": "6fe6443b6a002f2067f45b27a2f2a521f84310551268f5073ad2a00df52abd49"
+    },
+    {
+      "path": "release/part-022.xz",
+      "bytes": 346020,
+      "sha256": "011bd264c7efb9d86ea47fb463e0c3125750ae035f9ae2913714dffb0beec6e0"
+    }
+  ]
+}
