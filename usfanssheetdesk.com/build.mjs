@@ -29,3 +29,5 @@ for(const [source,pattern] of [['qa-app.js',/assets\/(app-[a-f0-9]+\.js)/],['qa-
 fs.appendFileSync('dist/_headers','/*\n  X-Robots-Tag: noindex, nofollow\n');
 fs.writeFileSync('dist/robots.txt','User-agent: *\nDisallow: /\n');
 console.log('Internal partial-index runtime QA only; full production gate remains required');
+
+function protectTranslations(dir){for(const p of fs.readdirSync(dir,{withFileTypes:true})){const full=dir+'/'+p.name;if(p.isDirectory())protectTranslations(full);else if(p.name.endsWith('.html')){let h=fs.readFileSync(full,'utf8');h=h.replace(/<html\b[^>]*>/,'<html lang="en" translate="no" class="notranslate">');if(!h.includes('<meta name="google" content="notranslate">'))h=h.replace('</head>','<meta name="google" content="notranslate"></head>');fs.writeFileSync(full,h)}}}protectTranslations('dist');
