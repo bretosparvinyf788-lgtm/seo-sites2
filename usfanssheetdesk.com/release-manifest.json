@@ -1,152 +1,152 @@
 {
   "domain": "usfanssheetdesk.com",
-  "source_commit": "d42f1967ef38d2df6bfd6dc795b24acb1d6209d0",
-  "archive_sha256": "ff9a3eb0006ac3f889fcb67cf828a942db9e48cf1ba5dde53f82c340f7da851c",
-  "bytes": 10774208,
+  "source_commit": "17d08326e295b9f51076a0c1310805c6a34f6e4e",
+  "archive_sha256": "195103cf8811b5b31d57039fa55b03e2bab43014bae75530ff48c9120c4bcf59",
+  "bytes": 10775600,
   "products": 4771,
   "galleries": 4771,
   "style_images": 119110,
-  "files": 9671,
+  "files": 9673,
   "parts": [
     {
       "path": "release/part-000.xz",
       "bytes": 393216,
-      "sha256": "56bd7b341be239527b546634fb8b750fdbc15faed7eca929c1575cd7ccf40847"
+      "sha256": "24bdac6903a001e0eaad191324917ce8da2f48371b3b77db5377f40cad258adb"
     },
     {
       "path": "release/part-001.xz",
       "bytes": 393216,
-      "sha256": "1755a1b8956a9ab3808ef6fa718beac0034bd840b3226e0f1c2847cd8cf52abb"
+      "sha256": "1e4061c5ccf85e8bc6c5dc14862c8f9d36644facfccc7542d27f08ed241bd9fe"
     },
     {
       "path": "release/part-002.xz",
       "bytes": 393216,
-      "sha256": "be12a965961c66e86c7537883c51eff1b74f24884d1b82da4f404ed7599fe298"
+      "sha256": "7d4c78cbd25239b17ed5e66719c34830fb26af0c8362fc646aa96966e97a5922"
     },
     {
       "path": "release/part-003.xz",
       "bytes": 393216,
-      "sha256": "dc539f466b6b8ef5f6c42e90fd2a4e3e8072ab8219a55597a92ad971ed0d4cf3"
+      "sha256": "0e2dd446eba696c0a78bed6dc3f29880244e836668442c126a7e5a763e39b8d5"
     },
     {
       "path": "release/part-004.xz",
       "bytes": 393216,
-      "sha256": "3b830cd3ae835ad962b2e602c11aef9c88374ce179b59262c799206e772010c0"
+      "sha256": "a77db2182cbfa4d04794905dacf349b9a44c26bb69e512709c814539e306e5b6"
     },
     {
       "path": "release/part-005.xz",
       "bytes": 393216,
-      "sha256": "ad68ec3cd6c5eee4b8d19583e6b229599eaf4ed5439c3cc985c618b6b52dd576"
+      "sha256": "eaa689dac197fb411c8e8130f3b4668df7421e75ffc27040ecb2ba459dea09ef"
     },
     {
       "path": "release/part-006.xz",
       "bytes": 393216,
-      "sha256": "9c330f9bdd13ba57450917180f707529457a02e89848bc59d9dd37c695471dc1"
+      "sha256": "0f8691339ceeb9bd608755e42010a74e62965ab32165417103ca0cb64ee26c9e"
     },
     {
       "path": "release/part-007.xz",
       "bytes": 393216,
-      "sha256": "8e4cfeb38ef7721bb6254dd5cd9054e9d01fcf8ecb86f07f009f98592a2b20db"
+      "sha256": "64aa5054bad73ce530270fb3634a425b720b2c8f0d6d902d17f171947ea4ad2e"
     },
     {
       "path": "release/part-008.xz",
       "bytes": 393216,
-      "sha256": "b5faf2f6f89c3c7496924504f9e701494dc4f7c856e21a653f1e4e891bdeea27"
+      "sha256": "94856062d49f6926a6c505f35f1996ff0d84503d513fff9943553160b25ffff4"
     },
     {
       "path": "release/part-009.xz",
       "bytes": 393216,
-      "sha256": "fb9ac75727e930b76d5b3041a605521ccd1e4289d80885efbc271749dc35c925"
+      "sha256": "ec6b73777143969aad672dac8ee8c6c88e3692c2392cd4a9d2de745868f62bf5"
     },
     {
       "path": "release/part-010.xz",
       "bytes": 393216,
-      "sha256": "da85bd1c70bbcebe6048626583de9350067867b1c329ed8683510ee0c492e2f3"
+      "sha256": "0e3dd7faf978c871c070ce8aa5d5e3dbf670638302a8de9e0156abdfae881a22"
     },
     {
       "path": "release/part-011.xz",
       "bytes": 393216,
-      "sha256": "9e1b724110c925ea655b336c3baadf118ce8d244d8fa697f60a973fec3a2a517"
+      "sha256": "90e84be7c8e72f3e0452ba7e43f9d0af5ab8cbfbb8aad68b1932845fff940af7"
     },
     {
       "path": "release/part-012.xz",
       "bytes": 393216,
-      "sha256": "37c723ae36877d5a24c45b1fdd00d1d67282e99b07222f62ff7ac66e9b060f1a"
+      "sha256": "a92cdfcd0d865221ebb8335075c3aa61dce2abebbdf4e718bffdff47d7c953a5"
     },
     {
       "path": "release/part-013.xz",
       "bytes": 393216,
-      "sha256": "b33e68e7154b517e07ae8f6805b8570454b38fdd198cff6a9e0cae6d50a4c06d"
+      "sha256": "2a549ace2d84e054ace415906485a1a5d5ccfd717e65a822782d696c41c8442e"
     },
     {
       "path": "release/part-014.xz",
       "bytes": 393216,
-      "sha256": "eb466033bda32804a9b4685a6cb8c2dd83e9c4eb7f112e6440e8adab52f44095"
+      "sha256": "83a85fa49a79f4eeb0513db9e2ae8b94f3a95657045d77e3a7f490822a68c9ed"
     },
     {
       "path": "release/part-015.xz",
       "bytes": 393216,
-      "sha256": "e1e9a719326c52ea2cd805d9ad0e7e05aaa9823f5c0f94633bef52bef98b9a5a"
+      "sha256": "4b676fe867ffef85f98f0bed24f86c4331e42e97381d499e1fa09a97e08bdd9f"
     },
     {
       "path": "release/part-016.xz",
       "bytes": 393216,
-      "sha256": "23dc7f5f3c88e8beaa9cea6aaf6663056a5d27c07fab77ce2e2e1823db1cd695"
+      "sha256": "42df7ce344ffb9a7d90c9a3dfafd29dd6415794c86a8dba91c012ee9cd6758a9"
     },
     {
       "path": "release/part-017.xz",
       "bytes": 393216,
-      "sha256": "cae3a1b3ef417a9d5baa303be3036fd6d790f3c5527207d275583f0549c1e883"
+      "sha256": "530df6af718cef53ae79db54fcdc8d94af255c2b8d34f212be00f765b360d30e"
     },
     {
       "path": "release/part-018.xz",
       "bytes": 393216,
-      "sha256": "16dd4e6ba43ba327ccdc3a69b1a1ba9a62007b0d0434102a29f0b2a83ad213c2"
+      "sha256": "79e4f9b34dbb2aebdbd558b9029d7291e27b6f13ff50752798758ee651ed95d1"
     },
     {
       "path": "release/part-019.xz",
       "bytes": 393216,
-      "sha256": "1f4bbe09651d4fcb5cf865ccca34fc0a4a62bf497d7a34854de2dd72c4e946a6"
+      "sha256": "45da1f533434c649ff34532da6eed7c981ac270f414677a259ee7ab9527488ec"
     },
     {
       "path": "release/part-020.xz",
       "bytes": 393216,
-      "sha256": "f0b82dc170461a8d697a8a455d8284092ed46355d70735cb05798d7931546da7"
+      "sha256": "221a1953d29250e6cff12bc9311fbb88e4ebb03a2352cf5db6c1a0d6fc35f5b6"
     },
     {
       "path": "release/part-021.xz",
       "bytes": 393216,
-      "sha256": "6a255e6739e9dfa1d879d2c3b3bbbf8a08f883c7e856e750e84cc6453170a502"
+      "sha256": "d9d9d4f465604db71b63766d0269416a71fe3692e9131dcfd377b10ca995afca"
     },
     {
       "path": "release/part-022.xz",
       "bytes": 393216,
-      "sha256": "9e3f7f056a7388b4227ca155875eb9e3a271b8834a97d15f5f771b151c5f9990"
+      "sha256": "4bdc8fe8b9773b539e8f7dc3153b06c61c606f8f4625cf3ef0eecf05e233fd6c"
     },
     {
       "path": "release/part-023.xz",
       "bytes": 393216,
-      "sha256": "68d27dc086a45c5ce12339bc0397a891052ed0bddc7127aaa07d2a87a10c7155"
+      "sha256": "a81f1e49f5eb1fec63c3d8b4e29bb749de898970e59afef37cc8fd66eb8b541f"
     },
     {
       "path": "release/part-024.xz",
       "bytes": 393216,
-      "sha256": "604a449011cfd54be7af9fef205b8c44ee22b20cea66671430c28537b02dec83"
+      "sha256": "38207d848e63b814c884401916f0ee03b8493a8c395cfcbfdb652d698532494f"
     },
     {
       "path": "release/part-025.xz",
       "bytes": 393216,
-      "sha256": "a53c2822fc926eda4a8b745715969648ebb70aede2f5bd9ef000d11d21ac04b2"
+      "sha256": "4986495355ffc407ecb06a0dc8521023cd91fa4b4d39f171913c18f4bec809e3"
     },
     {
       "path": "release/part-026.xz",
       "bytes": 393216,
-      "sha256": "8ff1548bd03ab8eb37d438489b5adf91b77631da4d8adaf0582fcbd195465489"
+      "sha256": "92ab3c39dfd2f1c6603e51d1cbe76af8b15f6ff86dbbc27f82de08872934dc61"
     },
     {
       "path": "release/part-027.xz",
-      "bytes": 157376,
-      "sha256": "bc1c825e253c3f77516eea5cd93d51f79e46533acb63751852ee6459e64609b8"
+      "bytes": 158768,
+      "sha256": "a316310620ebbfa0b0df4c7d2a285a0d51cf3b32bceb847727b99c4cc735c410"
     }
   ]
 }
