@@ -9,6 +9,11 @@ fs.writeFileSync('site-source.tar.xz',archive);execFileSync('tar',['-xJf','site-
 const c=JSON.parse(fs.readFileSync('dist/catalog.json','utf8'));
 const gi=JSON.parse(fs.readFileSync('dist/gallery-index.json','utf8'));
 if(c.length!==manifest.products||Object.keys(gi).length!==manifest.galleries||c.some(p=>!['available','no_images'].includes(gi[p.id]?.status)))throw Error('Incomplete catalogue or gallery data');
+// Refuse deployment if an import would re-expose unreviewed product photos.
+const reviews=JSON.parse(fs.readFileSync('image-audit/reviews.json','utf8'));
+const approved=new Set(['/assets/photo-review.svg']);
+for(const v of Object.values(reviews)){if(v.status!=='approved')continue;if(!v.public_path?.startsWith('/assets/reviewed/')||hash(fs.readFileSync('dist'+v.public_path))!==v.sha256)throw Error('Invalid approved photo');approved.add(v.public_path)}
+for(const p of c){const g=JSON.parse(fs.readFileSync('dist/data/galleries/'+p.id+'.json','utf8'));if(!p.photoAuditApplied||!g.photoAuditApplied||!approved.has(p.image)||p.qc.some(u=>!approved.has(u))||g.carousel.some(u=>!approved.has(u))||g.styles.some(v=>!approved.has(v.image)))throw Error('Unreviewed product photo blocked: '+p.id)}
 const visual=JSON.parse(fs.readFileSync('dist/visual/index.json','utf8'));const locales=JSON.parse(fs.readFileSync('localization-coverage.json','utf8'));if(visual.count!==c.length||visual.items.length!==c.length||new Set(visual.items.map(p=>p.id)).size!==c.length||visual.items.some(p=>!c.some(x=>x.id===p.id))||fs.statSync('dist/visual/embeddings.i8').size!==c.length*512||!locales.complete_string_coverage||locales.languages!==24)throw Error('Incomplete image search or localization');
 fs.writeFileSync('dist/production-analytics.js',`(()=>{if(!['usfanssheetdesk.com','www.usfanssheetdesk.com'].includes(location.hostname)||new URLSearchParams(location.search).get('analytics')==='off')return;window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config','G-4K90H51CBJ');const s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-4K90H51CBJ';document.head.appendChild(s)})();`);
 const analyticsFile='production-analytics-'+hash(fs.readFileSync('dist/production-analytics.js')).slice(0,12)+'.js';

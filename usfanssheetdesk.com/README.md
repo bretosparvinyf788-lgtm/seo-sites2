@@ -1,6 +1,6 @@
 # usfanssheetdesk.com
 
-Complete USFans Sheet Desk release: 4,771 products, all original carousels, 4,740 products with SKU style photos, 119,110 style-image records and 15 purchasing platforms with personal referral parameters.
+USFans Sheet Desk:4,771 products and15 purchasing platforms. User-authorized approved-only photo publishing is active: unreviewed images are hidden,4 confirmed QR/contact photos are blocked, and1 manually approved original is available across2 products. Original40,009carousel/119,110style records are preserved outside public dist for continued review. The complete148,712unique-photo content audit is unfinished.
 
 The complete editable website and its data are versioned in checksum-verified release parts. `node build.mjs` restores the source and static assets into this directory. Cloudflare Pages serves `dist` after this command succeeds. The original authoring scripts are restored alongside the site for subsequent editing.
 
