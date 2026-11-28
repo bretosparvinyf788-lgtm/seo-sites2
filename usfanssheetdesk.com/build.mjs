@@ -6,6 +6,8 @@ const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
 const parts=manifest.parts.map(p=>{const b=fs.readFileSync(p.path);if(hash(b)!==p.sha256)throw Error('Release part checksum mismatch: '+p.path);return b});
 const archive=Buffer.concat(parts);if(hash(archive)!==manifest.archive_sha256)throw Error('Release archive checksum mismatch');
 fs.writeFileSync('site-source.tar.xz',archive);execFileSync('tar',['-xJf','site-source.tar.xz','--no-same-owner']);
+// Reviewed-photo updates overlay the checksum-verified complete source snapshot.
+if(manifest.review_parts){const b=Buffer.concat(manifest.review_parts.map(p=>{const v=fs.readFileSync(p.path);if(hash(v)!==p.sha256)throw Error('Review part checksum mismatch');return v}));if(hash(b)!==manifest.review_archive_sha256)throw Error('Review archive checksum mismatch');fs.writeFileSync('review-patch.tar.xz',b);execFileSync('tar',['-xJf','review-patch.tar.xz','--no-same-owner'])}
 const c=JSON.parse(fs.readFileSync('dist/catalog.json','utf8'));
 const gi=JSON.parse(fs.readFileSync('dist/gallery-index.json','utf8'));
 if(c.length!==manifest.products||Object.keys(gi).length!==manifest.galleries||c.some(p=>!['available','no_images'].includes(gi[p.id]?.status)))throw Error('Incomplete catalogue or gallery data');
